@@ -33,25 +33,29 @@ def _igl_load_texture(name):
     #mtex.mapping = 'FLAT'
     return
 
-def _igl_createTextureLayer(name, me):
+def _igl_createTextureLayer(name, me, x, y, w, h, imgw, imgh):
     global _igl_image
     uvtex = me.uv_textures.new()
     uvtex.name = name
     uv_layer = me.uv_layers[0]
-    print(uvtex.data[0])
-    print(dir(uvtex.data[0]))
     uvtex.data[0].image = _igl_image 
     uvtex.data[1].image = _igl_image 
     #ob.data.uv_layers.active.data[loop_index].uv = (0.5, 0.5)
-    uv_layer.data[0].uv = (0, 1)
-    uv_layer.data[1].uv = (0, 0)
-    uv_layer.data[2].uv = (1, 0)
-    uv_layer.data[3].uv = (1, 0)
-    uv_layer.data[4].uv = (1, 1)
-    uv_layer.data[5].uv = (0, 1)
+    u0 = x/imgw
+    v0 = (y)/imgh
+    u1 = (x+w)/imgw
+    v1 = (y-h)/imgh
+    print("x %s y %s w %s h %s imgw %s imgh %s"%(x, y, w, h, imgw, imgh))
+    print("u0 %s u1 %s v0 %s v1 %s"%(u0, u1, v0, v1))
+    uv_layer.data[0].uv = (u0, v1)
+    uv_layer.data[1].uv = (u0, v0)
+    uv_layer.data[2].uv = (u1, v0)
+    uv_layer.data[3].uv = (u1, v0)
+    uv_layer.data[4].uv = (u1, v1)
+    uv_layer.data[5].uv = (u0, v1)
     return uvtex
  
-def _igl_add_sprite(name, x, y, w, h):
+def _igl_add_sprite(name, x, y, w, h, imgw, imgh):
     global _igl_material
     cx = (x + w)/2
     cy = (y + h)/2
@@ -69,10 +73,10 @@ def _igl_add_sprite(name, x, y, w, h):
 
     # List of verts and faces
     verts = [
-        (cx-w2, cy+h2, 0), 
-        (cx-w2, cy-h2, 0), 
-        (cx+w2, cy-h2, 0), 
-        (cx+w2, cy+h2, 0)
+        (-w2, -h2, 0), 
+        (-w2, +h2, 0), 
+        (+w2, +h2, 0), 
+        (+w2, -h2, 0)
     ]
     faces = [(0,1,2), (2,3,0)]
     # Create mesh from given verts, edges, faces. Either edges or
@@ -83,11 +87,7 @@ def _igl_add_sprite(name, x, y, w, h):
     me.update(calc_edges=True)
  
     # First texture layer: Main UV texture
-    texFaces = [
-        [(0,1), (0,0), (1,0)],
-        [(1,0), (1,1), (0,1)]
-    ]
-    uvMain = _igl_createTextureLayer("UVMain", me)
+    uvMain = _igl_createTextureLayer("UVMain", me, x, y, w, h, imgw, imgh)
  
     # Set Main Layer active
     me.uv_textures["UVMain"].active = True
@@ -104,6 +104,8 @@ def import_gimp_layers(json_path):
         data = json.load(data_file)
         json_img = data["img"]
         print("image: %s w:%s h:%s"%(json_img["name"], json_img["width"],  json_img["height"]))
+        imgw = json_img["width"]
+        imgh = json_img["height"]
         _igl_load_texture(json_img["name"])
         json_layers = data["layers"]
         for layer in json_layers:
@@ -113,6 +115,6 @@ def import_gimp_layers(json_path):
             w = layer["width"]
             h = layer["height"]
             print("layer: %s x:%s y:%s w:%s h:%s "%(name, x, y, w, h))
-            _igl_add_sprite(name, x, y, w, h)
+            _igl_add_sprite(name, x, y, w, h, imgw, imgh)
     return
 
