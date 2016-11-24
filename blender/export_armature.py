@@ -37,6 +37,10 @@ def _ea_export_curves(action, out):
                 label = "pos.x"
             else: 
                 label = "pos.y"
+
+        if channel == "rotation_euler" and curve.array_index == 2:
+            export = 1
+            label = "rot"
         
         if export:           
             out.write("%s{\n"%(cv_sep))
@@ -49,6 +53,9 @@ def _ea_export_curves(action, out):
             out.write("}\n")
         else:
             print("skipping channel %s with index %d"%(channel, curve.array_index))
+            if channel == "rotation_quaternion":
+                print("this version does not support quaternion channels. please animate using euler rotations")
+
     return
 
 def _ea_write_keyframes(curve, out):
