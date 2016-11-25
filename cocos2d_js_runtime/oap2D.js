@@ -111,22 +111,13 @@ var oap2D = (function(cc){
         target = armature.bones[curve.bone];
         console.log("target bone " + curve.bone + " channel:"+curve.channel + " " +target);
       }else if(curve.sprite){
-        target = armature.sprite[curve.sprite];
+        target = armature.sprites[curve.sprite];
         console.log("target sprite " + curve.sprite  + " channel:"+curve.channel+ " " +target);
       }
-      if(curve.channel === "pos.x"){
-         
-      }else if(curve.channel === "pos.y"){
-        
-      }else if(curve.channel === "rot"){
-        action = new oap2D.ActionAnimCurve(target, curve, anim.frames, 1);
-        //actions.push(action);
-      }else if(curve.channel === "hide"){
-        
-      }
+        action = new oap2D.ActionAnimCurve(target, curve, anim.frames, 20);
+        actions.push(action);
      });
-     return action; 
-     //return new cc.Spawn(actions);
+     return new cc.Spawn(actions);
   };
 
   /**
@@ -187,9 +178,15 @@ var oap2D = (function(cc){
       },
 
      updateKeyframe:function (newVal) {
-         if(this.curve.channel === "rot"){
-           this.oap2d_target.setRotation(360 - newVal.y); 
-         }
+      if(this.curve.channel === "pos.x"){
+          this.oap2d_target.setPositionX(newVal.y); 
+      }else if(this.curve.channel === "pos.y"){
+          this.oap2d_target.setPositionY(newVal.y); 
+      }else if(this.curve.channel === "rot"){
+          this.oap2d_target.setRotation(360 - newVal.y); 
+      }else if(this.curve.channel === "hide"){
+          this.oap2d_target.setVisible(newVal.y > 0.5);
+      }
      },
   });
 
