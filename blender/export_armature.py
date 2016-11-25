@@ -7,6 +7,7 @@ import bpy
 import json
 
 _ea_name = None
+cv_sep = ""
 
 def _ea_write_str(key, val, out):
     out.write('"%s":"%s"\n'%(key, val))
@@ -20,11 +21,50 @@ def _ea_write_vector2(key, val, out):
     out.write('"%s":{"x":%s, "y":%s}\n'%(key, val[0], val[1]))
     return
 
-def _ea_export_curves(action, out):
-    cv_sep = ""
+#
+# if here, it means that action.name has the main armature action
+# name as prefix = [action].[sprite_name]. this is a convention..
+# the curves of sprite actions are just mixed with those of 
+# the armature. instead of the "bone" key, we use "sprite" key
+# in the json to differentiate.
+#
+def _ea_export_sprite_curves(action, out):
+    global cv_sep
     for curve in action.fcurves:
-        bone = curve.data_path.split('"')[1]
-        channel = curve.data_path.split(".")[2]
+        tokens = action.name.split(".")
+        if len(tokens)!=2:
+            print("we expect a [action].[sprite] name of the sprite action, as convention..")
+            return
+        channel = curve.data_path
+        sprite = tokens[1]
+        print("exporting sprite curve sprite:%s channel:%s"%(sprite, channel))
+        export = 0
+        if channel == "hide":
+            export = 1
+        if export == 0:
+            print("skipping unknown channel")
+            return
+        out.write("%s{\n"%(cv_sep))
+        cv_sep = ","
+        _ea_write_str("sprite", sprite, out)
+        out.write(",")
+        _ea_write_str("channel", channel, out)
+        out.write(",")
+        _ea_write_keyframes(curve, out)
+        out.write("}\n")
+    return
+
+def _ea_export_curves(action, out):
+    global cv_sep
+    for curve in action.fcurves:
+        print(curve.data_path)
+        tokens = curve.data_path.split('"')
+        if len(tokens)>1:
+            bone = tokens[1]
+            channel = curve.data_path.split(".")[2]
+        else:
+            print("skipping unknown curve: %s in action %s"%(curve.data_path, action.name))
+            continue
         
         #channel filtering
         #here we discard or rename some curves
@@ -116,6 +156,23 @@ def export_armature(name, path):
     out.close()
     return
 
+
+#the previous line will export the action associated to the armature
+#but actions associated to the sprites, like visibility channel,
+#can't be accessed that way. 
+#we are relying in a Convention Over Configuration rule here:
+#let's prefix the actions in the sprites with the name of this action.
+#i.e: if "move" is the armature's action, then "move.helix_0" will be understood
+#as part of this group. 
+def _ea_export_sprite_actions(name, out):
+    for action in bpy.data.actions:
+        if action.name != name and action.name.startswith(name):
+            print("adding sprite action %s"%(action.name))
+            _ea_export_sprite_curves(action, out)
+        else:
+            print("skipping sprite action %s"%(action.name))
+    return
+
 #exports an action to a json file with the name of the action
 #and the suffix _animation.json
 def export_action(name, path):
@@ -130,6 +187,7 @@ def export_action(name, path):
     out.write(",")
     out.write('"curves":[\n')
     _ea_export_curves(action, out)
+    _ea_export_sprite_actions(name, out)
     out.write(']\n')
     out.write("}\n")
     out.close()
