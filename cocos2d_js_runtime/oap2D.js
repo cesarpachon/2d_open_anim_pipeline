@@ -18,6 +18,7 @@ var oap2D = (function(cc){
      console.log(armature_json);
      console.log(atlas_json);
      var armature = this._initArmature(armature_json);
+     this._initSprites(armature, armature_json, atlas_json);
      return armature; 
   };
 
@@ -45,6 +46,16 @@ var oap2D = (function(cc){
     return armature; 
   };
 
+  /**
+   * create sprites and attach them to the bones
+   */ 
+  oap2D._initSprites = function(armature, armature_json, atlas_json){
+    armature_json.bones.forEach(function(bone){
+      bone.sprites.forEach(function(sprite){
+        console.log(sprite);
+      });
+    });
+  };
 
   return oap2D;
 })(cc);
