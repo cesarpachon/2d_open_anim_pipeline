@@ -12,13 +12,13 @@ var oap2D = (function(cc){
    * the texture referenced by the file is also expected to be reachable
    * through the Cocos2D loader.
    */ 
-  oap2D.loadArmature = function(armature_json_path, atlas_json_path){
+  oap2D.loadArmature = function(armature_json_path, atlas_json_path, res_path){
      var armature_json = cc.loader.getRes(armature_json_path);
      var atlas_json = cc.loader.getRes(atlas_json_path);
      console.log(armature_json);
      console.log(atlas_json);
      var armature = this._initArmature(armature_json);
-     this._initSprites(armature, armature_json, atlas_json);
+     this._initSprites(armature, armature_json, atlas_json, res_path);
      return armature; 
   };
 
@@ -49,12 +49,25 @@ var oap2D = (function(cc){
   /**
    * create sprites and attach them to the bones
    */ 
-  oap2D._initSprites = function(armature, armature_json, atlas_json){
-    armature_json.bones.forEach(function(bone){
-      bone.sprites.forEach(function(sprite){
-        console.log(sprite);
+  oap2D._initSprites = function(armature, armature_json, atlas_json, res_path){
+    var _self = this;
+    armature_json.bones.forEach(function(jbone){
+      jbone.sprites.forEach(function(jsprite){
+        console.log(jsprite);
+        var csprite = _self._initSprite(jsprite, atlas_json, res_path);
       });
     });
+  };
+
+  /**
+   * creates a cc.Sprite using the json information
+   */ 
+  oap2D._initSprite = function(jsprite, atlas_json, res_path){
+    var path = res_path + atlas_json.img.name + ".png";
+    var rect = new cc.Rect(jsprite.x, jsprite.y, jsprite.width, jsprite.height);
+    var sprite = cc.Sprite.createWithTexture(path, res);
+    console.log(sprite);
+    return sprite;
   };
 
   return oap2D;
