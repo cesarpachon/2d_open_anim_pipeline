@@ -4,7 +4,9 @@
  * @author: cesarpachon@gmail.com 
  */
 var oap2D = (function(cc){
-  var oap2D = {};
+  var oap2D = {
+    animation_cache: {}
+  };
 
   /**
    * @param armature_json_path: path to a oap2D armature json
@@ -76,6 +78,29 @@ var oap2D = (function(cc){
     sprite.setRotation(jsprite.rot);
     console.log(sprite);
     return sprite;
+  };
+
+  /**
+   * load the animation in a module cache
+   * @param alias: optional. if found, will be used as key
+   * to register the anim in the cache. if not present,
+   * the attribute "name" of the animation will be used. 
+   * main intention is to avoid clashing names. 
+   */ 
+  oap2D.loadAnimation= function(animation_json_path, alias){
+     var animation_json = cc.loader.getRes(animation_json_path);
+     var name = alias?alias:animation_json.name; 
+     this.animation_cache[name] = animation_json;
+    console.log(animation_json);
+  };
+
+
+  /**
+   * returns and cocos action to play the given animation from
+   * the oap2D cache. 
+   */ 
+  oap2D.playAnimation= function(armature, animation_name){
+     
   };
 
 
