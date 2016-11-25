@@ -63,7 +63,7 @@ def _igl_add_sprite(name, x, y, w, h, imgw, imgh):
     h2 = h/2
     # Create mesh and object
     me = bpy.data.meshes.new(name+'_mesh')
-    ob = bpy.data.objects.new(name+'_sprite', me)
+    ob = bpy.data.objects.new(name, me)
     ob.location = (cx, cy, 0)
     # Link object to scene
     scn = bpy.context.scene

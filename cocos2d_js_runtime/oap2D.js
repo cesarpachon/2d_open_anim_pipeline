@@ -43,6 +43,7 @@ var oap2D = (function(cc){
       var parent = armature.bones[bone.parent];
       parent.addChild(armature.bones[bone.name]); 
     });
+    armature.addChild(armature.bones.root);
     return armature; 
   };
 
@@ -55,6 +56,7 @@ var oap2D = (function(cc){
       jbone.sprites.forEach(function(jsprite){
         console.log(jsprite);
         var csprite = _self._initSprite(jsprite, atlas_json, res_path);
+        armature.bones[jbone.name].addChild(csprite);
       });
     });
   };
@@ -64,8 +66,14 @@ var oap2D = (function(cc){
    */ 
   oap2D._initSprite = function(jsprite, atlas_json, res_path){
     var path = res_path + atlas_json.img.name + ".png";
-    var rect = new cc.Rect(jsprite.x, jsprite.y, jsprite.width, jsprite.height);
-    var sprite = cc.Sprite.createWithTexture(path, res);
+    var layer = atlas_json.layers.find(function(layer){
+      return layer.name === jsprite.name; 
+    });
+    var y = atlas_json.img.height - layer.y;
+    var rect = new cc.Rect(layer.x, y, layer.width, layer.height);
+    var sprite = cc.Sprite.createWithTexture(path, rect);
+    sprite.setPosition(jsprite.pos);
+    sprite.setRotation(jsprite.rot);
     console.log(sprite);
     return sprite;
   };
