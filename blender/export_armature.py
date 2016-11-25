@@ -145,8 +145,8 @@ def export_armature(name, path):
             out.write('"parent":"%s",\n'%(bone.parent.name))
         else:
             out.write('"parent":null,\n')
-        out.write('"pos":{"x": %s, "y": %s},\n'%(bone.head[0], bone.head[1]))
-        out.write('"rot": %s,\n'%(bone.matrix.to_euler()[2]))
+        out.write('"pos":{"x": %s, "y": %s},\n'%(bone.head_local[0], bone.head_local[1]))
+        out.write('"rot": %s,\n'%(bone.matrix_local.to_euler()[2]))
         out.write('"sprites":[\n')
         _ea_export_sprites(obj, bone, out)
         out.write(']\n')

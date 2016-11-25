@@ -78,5 +78,6 @@ var oap2D = (function(cc){
     return sprite;
   };
 
+
   return oap2D;
 })(cc);
