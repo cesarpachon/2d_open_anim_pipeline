@@ -119,7 +119,7 @@ var oap2D = (function(cc){
       }else if(curve.channel === "pos.y"){
         
       }else if(curve.channel === "rot"){
-        action = new oap2D.ActionAnimCurve(target, curve, anim.frames, 5);
+        action = new oap2D.ActionAnimCurve(target, curve, anim.frames, 1);
         //actions.push(action);
       }else if(curve.channel === "hide"){
         
@@ -164,20 +164,32 @@ var oap2D = (function(cc){
          this.initWithDuration(duration, points, 0);
      },
 
-    /*
-     * this is the key part! override setPosition to affect 
-     * the curve's channel.. 
-     * */
-     updatePosition:function (newPos) {
-         //instead of..
-         //this.target.setPosition(newPos);
-         
-         //let's do: 
-         if(this.curve.channel === "rot"){
-          this.oap2d_target.setRotation(newPos.y); 
-         }
 
-         this._previousPosition = newPos;
+   update:function (dt) {
+          dt = this._computeEaseTime(dt);
+          var p, lt;
+          var ps = this._points;
+          if (dt === 1) {
+              p = ps.length - 1;
+              lt = 1;
+          } else {
+              var locDT = this._deltaT;
+              p = 0 | (dt / locDT);
+              lt = (dt - locDT * p) / locDT;
+          }
+          var newVal = cc.cardinalSplineAt(
+              cc.getControlPointAt(ps, p - 1),
+              cc.getControlPointAt(ps, p - 0),
+              cc.getControlPointAt(ps, p + 1),
+              cc.getControlPointAt(ps, p + 2),
+              this._tension, lt);
+          this.updateKeyframe(newVal);
+      },
+
+     updateKeyframe:function (newVal) {
+         if(this.curve.channel === "rot"){
+           this.oap2d_target.setRotation(360 - newVal.y); 
+         }
      },
   });
 
