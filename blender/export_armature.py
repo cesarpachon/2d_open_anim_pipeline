@@ -5,6 +5,7 @@
 import os
 import bpy
 import json
+import math
 
 _ea_name = None
 cv_sep = ""
@@ -67,9 +68,10 @@ def _ea_export_curves(action, out):
             continue
         
         #channel filtering
-        #here we discard or rename some curves
+        #here we discard or rename some curves2*math.pi/360
         export = 0
         label = None
+        mode=None
         #discard z position channel
         if channel == "location" and curve.array_index < 2:        
             export = 1
@@ -81,6 +83,7 @@ def _ea_export_curves(action, out):
         if channel == "rotation_euler" and curve.array_index == 2:
             export = 1
             label = "rot"
+            mode = "rad2deg"
         
         if export:           
             out.write("%s{\n"%(cv_sep))
@@ -89,7 +92,7 @@ def _ea_export_curves(action, out):
             out.write(",")
             _ea_write_str("channel", label, out)
             out.write(",")
-            _ea_write_keyframes(curve, out)
+            _ea_write_keyframes(curve, out, mode)
             out.write("}\n")
         else:
             print("skipping channel %s with index %d"%(channel, curve.array_index))
@@ -98,13 +101,17 @@ def _ea_export_curves(action, out):
 
     return
 
-def _ea_write_keyframes(curve, out):
+#mode is optional.. pass "deg2rad" to force transformation of values
+def _ea_write_keyframes(curve, out, mode=None):
     sep = ""
     out.write('"keyframes":[\n')
     for frame in curve.keyframe_points:
         out.write(sep)
         sep = ","
-        out.write(" [%s, %s]\n"%(frame.co[0], frame.co[1]))
+        val = frame.co[1]
+        if mode == "rad2deg":
+            val = (180.0/math.pi)*frame.co[1]
+        out.write(" [%s, %s]\n"%(frame.co[0], val))
     out.write(']\n')
     return
 

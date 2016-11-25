@@ -119,7 +119,7 @@ var oap2D = (function(cc){
       }else if(curve.channel === "pos.y"){
         
       }else if(curve.channel === "rot"){
-        action = new oap2D.ActionAnimCurve(target, curve, anim.frames, 20);
+        action = new oap2D.ActionAnimCurve(target, curve, anim.frames, 5);
         //actions.push(action);
       }else if(curve.channel === "hide"){
         
@@ -144,7 +144,7 @@ var oap2D = (function(cc){
     ctor: function (target, curve, frames_len, fps/*duration, points, tension*/) {
          cc.CardinalSplineTo.prototype.ctor.call(this);
          this.curve = curve;
-         this.target = target;
+         this.oap2d_target = target;
          var duration = frames_len /  fps; 
          var points = [];
          curve.keyframes.forEach(function(keyframe){
@@ -162,7 +162,23 @@ var oap2D = (function(cc){
          console.log(points);
          console.log("duration:"+duration);
          this.initWithDuration(duration, points, 0);
-     }
+     },
+
+    /*
+     * this is the key part! override setPosition to affect 
+     * the curve's channel.. 
+     * */
+     updatePosition:function (newPos) {
+         //instead of..
+         //this.target.setPosition(newPos);
+         
+         //let's do: 
+         if(this.curve.channel === "rot"){
+          this.oap2d_target.setRotation(newPos.y); 
+         }
+
+         this._previousPosition = newPos;
+     },
   });
 
   return oap2D;
