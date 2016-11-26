@@ -114,7 +114,7 @@ var oap2D = (function(cc){
         target = armature.sprites[curve.sprite];
         console.log("target sprite " + curve.sprite  + " channel:"+curve.channel+ " " +target);
       }
-        action = new oap2D.ActionAnimCurve(target, curve, anim.frames, 20);
+        action = new oap2D.ActionAnimCurve(target, curve, anim.frames, anim.fps);
         actions.push(action);
      });
      return new cc.Spawn(actions);
