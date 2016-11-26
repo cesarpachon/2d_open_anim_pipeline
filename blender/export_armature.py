@@ -192,6 +192,8 @@ def export_action(name, path):
     out.write(",")
     _ea_write_num("frames", action.frame_range[1]-action.frame_range[0], out)
     out.write(",")
+    _ea_write_num("fps", bpy.context.scene.render.fps)
+    out.write(",")
     out.write('"curves":[\n')
     _ea_export_curves(action, out)
     _ea_export_sprite_actions(name, out)
